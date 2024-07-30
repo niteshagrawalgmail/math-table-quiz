@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Math Quiz</h1>
+    <button id="start" onclick="startQuiz()">Start</button>
+    <div id="quiz" class="hidden">
+        <p id="question"></p>
+        <input type="number" id="answer" placeholder="Your answer" />
+        <button id="submit" onclick="checkAnswer()">Submit</button>
+        <button id="next" onclick="generateQuestion()" class="hidden">Next</button>
+        <p id="result"></p>
+        <p id="timer"></p>
+    </div>
+
+    <script>
+        let num1, num2, correctAnswer, timer;
+
+        function startQuiz() {
+            document.getElementById('start').classList.add('hidden');
+            document.getElementById('quiz').classList.remove('hidden');
+            generateQuestion();
+        }
+
+        function generateQuestion() {
+            num1 = Math.floor(Math.random() * 10) + 11;
+            num2 = Math.floor(Math.random() * 10) + 1;
+            correctAnswer = num1 * num2;
+            document.getElementById('question').innerText = `What is ${num1} x ${num2}?`;
+            document.getElementById('result').innerText = '';
+            document.getElementById('answer').value = '';
+            document.getElementById('answer').focus();
+            document.getElementById('next').classList.add('hidden');
+            document.getElementById('submit').disabled = false;
+
+            startTimer();
+        }
+
+        function startTimer() {
+            let timeLeft = 10;
+            document.getElementById('timer').innerText = `Time left: ${timeLeft} seconds`;
+            clearInterval(timer);
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').innerText = `Time left: ${timeLeft} seconds`;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    checkAnswer();
+                }
+            }, 1000);
+        }
+
+        function checkAnswer() {
+            clearInterval(timer);
+            const userAnswer = parseInt(document.getElementById('answer').value);
+            if (userAnswer === correctAnswer) {
+                document.getElementById('result').innerText = 'Correct!';
+            } else {
+                document.getElementById('result').innerText = `Incorrect! The correct answer was ${correctAnswer}.`;
+            }
+            document.getElementById('next').classList.remove('hidden');
+            document.getElementById('submit').disabled = true;
+        }
+    </script>
+</body>
+</html>
