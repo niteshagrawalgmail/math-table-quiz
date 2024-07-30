@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Quiz</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,18 +15,28 @@
         .hidden {
             display: none;
         }
+        .quiz-container {
+            max-width: 500px;
+            margin: auto;
+        }
     </style>
 </head>
 <body>
-    <h1>Math Quiz</h1>
-    <button id="start" onclick="startQuiz()">Start</button>
-    <div id="quiz" class="hidden">
-        <p id="question"></p>
-        <input type="number" id="answer" placeholder="Your answer" />
-        <button id="submit" onclick="checkAnswer()">Submit</button>
-        <button id="next" onclick="generateQuestion()" class="hidden">Next</button>
-        <p id="result"></p>
-        <p id="timer"></p>
+    <div class="container">
+        <h1 class="my-4">Math Quiz</h1>
+        <button id="start" onclick="startQuiz()" class="btn btn-primary mb-3">Start</button>
+        <div id="quiz" class="hidden quiz-container">
+            <div class="card">
+                <div class="card-body">
+                    <p id="question" class="card-text"></p>
+                    <input type="number" id="answer" placeholder="Your answer" class="form-control mb-3" />
+                    <button id="submit" onclick="checkAnswer()" class="btn btn-success">Submit</button>
+                    <button id="next" onclick="generateQuestion()" class="btn btn-primary hidden">Next</button>
+                    <p id="result" class="mt-3"></p>
+                    <p id="timer" class="mt-3"></p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -51,7 +63,7 @@
         }
 
         function startTimer() {
-            let timeLeft = 10;
+            let timeLeft = 5;
             document.getElementById('timer').innerText = `Time left: ${timeLeft} seconds`;
             clearInterval(timer);
             timer = setInterval(() => {
@@ -76,5 +88,10 @@
             document.getElementById('submit').disabled = true;
         }
     </script>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
