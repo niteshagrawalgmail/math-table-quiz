@@ -19,73 +19,149 @@
             max-width: 500px;
             margin: auto;
         }
+        .results-table {
+            margin-top: 30px;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 class="my-4">Math Quiz</h1>
-        <button id="start" onclick="startQuiz()" class="btn btn-primary mb-3">Start</button>
-        <div id="quiz" class="hidden quiz-container">
+        <button id="start-button" onclick="startQuiz()" class="btn btn-primary mb-3">Start</button>
+        <div id="quiz-container" class="hidden quiz-container">
             <div class="card">
                 <div class="card-body">
                     <p id="question" class="card-text"></p>
-                    <input type="number" id="answer" placeholder="Your answer" class="form-control mb-3" />
-                    <button id="submit" onclick="checkAnswer()" class="btn btn-success">Submit</button>
-                    <button id="next" onclick="generateQuestion()" class="btn btn-primary hidden">Next</button>
+                    <input type="number" id="answer-input" placeholder="Your answer" class="form-control mb-3" />
+                    <button id="submit-button" onclick="checkAnswer()" class="btn btn-success">Submit</button>
+                    <button id="next-button" onclick="generateQuestion()" class="btn btn-primary hidden">Next</button>
                     <p id="result" class="mt-3"></p>
                     <p id="timer" class="mt-3"></p>
                 </div>
             </div>
         </div>
+        <div id="results-container" class="hidden results-table">
+            <h2>Results</h2>
+            <p id="score"></p>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Question</th>
+                        <th>Your Answer</th>
+                        <th>Correct Answer</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="results-body">
+                </tbody>
+            </table>
+            <button id="restart-button" onclick="restartQuiz()" class="btn btn-primary mt-3">Restart</button>
+        </div>
     </div>
 
     <script>
-        let num1, num2, correctAnswer, timer;
+        let firstNumber, secondNumber, correctAnswer, timerInterval;
+        let questionCount = 0;
+        const maxQuestions = 10;
+        const results = [];
+        let correctAnswersCount = 0;
 
+        // Function to start the quiz
         function startQuiz() {
-            document.getElementById('start').classList.add('hidden');
-            document.getElementById('quiz').classList.remove('hidden');
+            document.getElementById('start-button').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            document.getElementById('results-container').classList.add('hidden');
             generateQuestion();
         }
 
+        // Function to generate a new question
         function generateQuestion() {
-            num1 = Math.floor(Math.random() * 10) + 11;
-            num2 = Math.floor(Math.random() * 10) + 1;
-            correctAnswer = num1 * num2;
-            document.getElementById('question').innerText = `What is ${num1} x ${num2}?`;
+            if (questionCount >= maxQuestions) {
+                endQuiz();
+                return;
+            }
+            firstNumber = Math.floor(Math.random() * 10) + 11;
+            secondNumber = Math.floor(Math.random() * 10) + 1;
+            correctAnswer = firstNumber * secondNumber;
+            document.getElementById('question').innerText = `What is ${firstNumber} x ${secondNumber}?`;
             document.getElementById('result').innerText = '';
-            document.getElementById('answer').value = '';
-            document.getElementById('answer').focus();
-            document.getElementById('next').classList.add('hidden');
-            document.getElementById('submit').disabled = false;
-
+            document.getElementById('answer-input').value = '';
+            document.getElementById('answer-input').focus();
+            document.getElementById('next-button').classList.add('hidden');
+            document.getElementById('submit-button').disabled = false;
             startTimer();
+            questionCount++;
         }
 
+        // Function to start the timer
         function startTimer() {
             let timeLeft = 10;
             document.getElementById('timer').innerText = `Time left: ${timeLeft} seconds`;
-            clearInterval(timer);
-            timer = setInterval(() => {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
                 timeLeft--;
                 document.getElementById('timer').innerText = `Time left: ${timeLeft} seconds`;
                 if (timeLeft <= 0) {
-                    clearInterval(timer);
+                    clearInterval(timerInterval);
                     checkAnswer();
                 }
             }, 1000);
         }
 
+        // Function to check the user's answer
         function checkAnswer() {
-            clearInterval(timer);
-            const userAnswer = parseInt(document.getElementById('answer').value);
-            if (userAnswer === correctAnswer) {
-                document.getElementById('result').innerText = 'Correct!';
-            } else {
-                document.getElementById('result').innerText = `Incorrect! The correct answer was ${correctAnswer}.`;
-            }
-            document.getElementById('next').classList.remove('hidden');
-            document.getElementById('submit').disabled = true;
+            clearInterval(timerInterval);
+            const userAnswer = parseInt(document.getElementById('answer-input').value);
+            const isCorrect = userAnswer === correctAnswer;
+            const resultText = isCorrect ? 'Correct!' : `Incorrect! The correct answer was ${correctAnswer}.`;
+            document.getElementById('result').innerText = resultText;
+
+            if (isCorrect) correctAnswersCount++;
+
+            results.push({
+                question: `${firstNumber} x ${secondNumber}`,
+                userAnswer: userAnswer || 'No answer',
+                correctAnswer: correctAnswer,
+                isCorrect: isCorrect
+            });
+            document.getElementById('next-button').classList.remove('hidden');
+            document.getElementById('submit-button').disabled = true;
+        }
+
+        // Function to end the quiz and show results
+        function endQuiz() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('results-container').classList.remove('hidden');
+            const resultsBody = document.getElementById('results-body');
+            resultsBody.innerHTML = ''; // Clear previous results
+            results.forEach(result => {
+                const row = document.createElement('tr');
+                const userAnswerClass = result.isCorrect ? 'correct' : 'incorrect';
+                const statusIcon = result.isCorrect ? '✔️' : '❌';
+                row.innerHTML = `
+                    <td>${result.question}</td>
+                    <td class="${userAnswerClass}">${result.userAnswer}</td>
+                    <td>${result.correctAnswer}</td>
+                    <td>${statusIcon}</td>
+                `;
+                resultsBody.appendChild(row);
+            });
+            document.getElementById('score').innerText = `You got ${correctAnswersCount} out of ${maxQuestions} correct.`;
+        }
+
+        // Function to restart the quiz
+        function restartQuiz() {
+            questionCount = 0;
+            correctAnswersCount = 0;
+            results.length = 0;
+            document.getElementById('results-container').classList.add('hidden');
+            document.getElementById('start-button').classList.remove('hidden');
         }
     </script>
 
